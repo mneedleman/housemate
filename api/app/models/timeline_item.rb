@@ -27,6 +27,8 @@ class TimelineItem < ApplicationRecord
   belongs_to :household
   belongs_to :user
 
+  has_many :timeline_item_instances, dependent: :destroy
+
   enum frequency_unit: [
     :days,
     :weeks,
@@ -34,6 +36,7 @@ class TimelineItem < ApplicationRecord
   ]
 
   def frequency_unit_formatted
+    return '' if frequency_value.blank?
     return frequency_unit.singularize if frequency_value < 2
   
     frequency_unit
@@ -43,11 +46,11 @@ class TimelineItem < ApplicationRecord
     "#{frequency_value} #{frequency_unit_formatted}"
   end
 
+  # Next due date: one frequency interval after the last completion.
+  # Nil until the item has been completed and has a frequency set.
   def due_at
-    DateTime.now
-  end
+    return if last_completed_at.blank? || frequency_value.blank? || frequency_unit.blank?
 
-  def color
-    "blue"
+    last_completed_at + frequency_value.public_send(frequency_unit)
   end
 end

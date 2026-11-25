@@ -1,3 +1,0 @@
-mutation removeUserFromHousehold($id: ID!, $userId: ID!) {
-  removeUserFromHousehold(id: $id, userId: $userId)
-} 
