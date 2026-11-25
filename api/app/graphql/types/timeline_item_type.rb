@@ -8,6 +8,5 @@ module Types
     field :frequency, String
     field :frequency_unit, String, method: :frequency_unit_formatted
     field :frequency_value, Integer
-    field :color, String
   end
 end

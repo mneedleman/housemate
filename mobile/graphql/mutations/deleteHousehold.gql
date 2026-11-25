@@ -1,3 +1,0 @@
-mutation deleteHousehold($id: ID!) {
-  deleteHousehold(id: $id)
-} 

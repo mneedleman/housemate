@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_01_04_195207) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -38,6 +38,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_04_195207) do
     t.datetime "updated_at", null: false
     t.index ["household_id"], name: "index_leftovers_on_household_id"
     t.index ["user_id"], name: "index_leftovers_on_user_id"
+  end
+
+  create_table "timeline_item_instances", force: :cascade do |t|
+    t.bigint "timeline_item_id", null: false
+    t.datetime "completed_at"
+    t.datetime "scheduled_for"
+    t.datetime "skipped_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["timeline_item_id"], name: "index_timeline_item_instances_on_timeline_item_id"
   end
 
   create_table "timeline_items", force: :cascade do |t|
@@ -68,6 +78,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_01_04_195207) do
 
   add_foreign_key "leftovers", "households"
   add_foreign_key "leftovers", "users"
+  add_foreign_key "timeline_item_instances", "timeline_items"
   add_foreign_key "timeline_items", "households"
   add_foreign_key "timeline_items", "users"
   add_foreign_key "users", "households"

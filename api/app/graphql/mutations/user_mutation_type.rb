@@ -28,8 +28,9 @@ module Mutations
       token = create_auth_token(user)
       return token unless user.household_id.blank?
       
-      if (household = user.households.pluck(:id).first).present?
-        user.update_column(household_id: household.id)
+      # No household selected yet: default to the first one they belong to
+      if (household_id = user.households.pick(:id))
+        user.update_column(:household_id, household_id)
       end
 
       token

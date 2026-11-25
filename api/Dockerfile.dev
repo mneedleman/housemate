@@ -1,0 +1,19 @@
+# Development image — source is bind-mounted by docker-compose.yml
+# 3.1.0's image is on Debian bullseye (EOL, apt mirrors gone); 3.1 tracks the latest 3.1.x on bookworm
+ARG RUBY_VERSION=3.1
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config postgresql-client curl libyaml-dev && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ENV BUNDLE_PATH=/usr/local/bundle
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+COPY . .
+
+EXPOSE 3000
