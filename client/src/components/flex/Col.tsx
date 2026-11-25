@@ -1,15 +1,8 @@
-import type { PropsWithChildren } from "react";
+import type { HTMLAttributes } from "react";
+import { cn } from "src/utils/cn";
 
-type Props = {
-  className?: string
-}
-
-const Col = ({ className, children }: PropsWithChildren<Props>) => {
-  return (
-    <div className={`flex flex-col ${className || ''}`}>
-      {children}
-    </div>
-  );
-};
+const Col = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("flex flex-col", className)} {...rest} />
+);
 
 export default Col;

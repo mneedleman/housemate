@@ -1,57 +1,64 @@
-import { useMutation } from "@apollo/client"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { useContext } from "react"
-import { ModalContext } from "../modal/Modal"
+import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
+import { toast } from "react-toastify"
+import { useCreateLeftoverMutation, type MutationCreateLeftoverArgs } from "src/__generated__/types"
+import { fromDateInput } from "src/utils/dateUtils"
+import FormActions from "../forms/FormActions"
 import FormInput from "../forms/FormInput"
-import { CreateLeftoverDocument, type MutationCreateLeftoverArgs } from "src/__generated__/types"
-
-const defaultValues: Partial<MutationCreateLeftoverArgs> = {
-}
-
-const defaultClass =
-  "f3 mv2 lh-copy"
+import { useModal } from "../modal/Modal"
 
 const CreateLeftoverForm = () => {
-  const [createLeftover] = useMutation(CreateLeftoverDocument)
-  const { register, handleSubmit, formState: { errors } } = useForm<MutationCreateLeftoverArgs>({ defaultValues })
-  const { close } = useContext(ModalContext)
+  const [createLeftover] = useCreateLeftoverMutation()
+  const formMethods = useForm<MutationCreateLeftoverArgs>()
+  const { handleSubmit, formState: { isSubmitting } } = formMethods
+  const { close } = useModal()
 
-  const onSubmit: SubmitHandler<MutationCreateLeftoverArgs> = (data) => {
+  const onSubmit: SubmitHandler<MutationCreateLeftoverArgs> = (data) =>
     createLeftover({
-      variables: data,
+      variables: {
+        ...data,
+        allergens: data.allergens || undefined,
+        trashBy: fromDateInput(data.trashBy),
+        useBy: fromDateInput(data.useBy),
+      },
       refetchQueries: ["leftovers"],
-      onCompleted: close
-    })
-  }
-
-  const commonProps = {
-    register,
-    errorClass: "red f6 tr nt2 mb2",
-    errorSpaceClass: "mb2"
-  }
+    }).then(() => {
+      toast.success("Leftover added")
+      close()
+    }).catch(() => toast.error("Couldn't add that leftover"))
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-column w5 mv2 mh3 justify-around">
-      <span className="f3 b self-center">Create Leftover</span>
-      <FormInput
-        placeholder="Name"
-        fieldName="name"
-        inputClass={defaultClass}
-        errorField={errors.name}
-        required
-        {...commonProps}
-      />
-      <FormInput
-        label="Trash By"
-        labelClass="f3 lh-copy"
-        inputClass={defaultClass}
-        fieldName="trashBy"
-        {...commonProps}
-        type="date"
-        required
-      />
-      <input type="submit" value="Submit" className="mt3 f3 self-end" />
-    </form>
+    <FormProvider {...formMethods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+        <FormInput
+          label="What is it?"
+          placeholder="Tuesday's lasagne"
+          fieldName="name"
+          errorMessage="Give it a name"
+          required
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormInput
+            label="Toss by"
+            fieldName="trashBy"
+            type="date"
+            errorMessage="When should it go?"
+            required
+          />
+          <FormInput
+            label="Best by (optional)"
+            fieldName="useBy"
+            type="date"
+          />
+        </div>
+        <FormInput
+          label="Allergens"
+          description="Optional — e.g. nuts, dairy, gluten"
+          placeholder="None"
+          fieldName="allergens"
+        />
+        <FormActions submitLabel="Add leftover" submitting={isSubmitting} />
+      </form>
+    </FormProvider>
   )
 }
 

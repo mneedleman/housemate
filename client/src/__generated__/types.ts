@@ -21,14 +21,13 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
-export enum FrequencyEnum {
-  Day = 'day',
-  Days = 'days',
-  Month = 'month',
-  Months = 'months',
-  Week = 'week',
-  Weeks = 'weeks'
-}
+export type FrequencyEnum =
+  | 'day'
+  | 'days'
+  | 'month'
+  | 'months'
+  | 'week'
+  | 'weeks';
 
 export type Household = {
   __typename?: 'Household';

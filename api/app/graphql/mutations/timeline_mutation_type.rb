@@ -32,7 +32,7 @@ module Mutations
     def create_timeline_item(**item_args)
       return unless current_user
 
-      item = TimelineItem.create!(**item_args, user: current_user, household: current_user.household)
+      TimelineItem.create!(**item_args, user: current_user, household: current_user.household)
     end
 
     def edit_timeline_item(id:, **item_args)
