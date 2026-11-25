@@ -6,6 +6,10 @@ const config: CodegenConfig = {
     generates: {
         "./src/__generated__/types.ts": {
             plugins: ["typescript", "typescript-operations", "typescript-react-apollo"],
+            config: {
+                // TS `enum`s aren't allowed under erasableSyntaxOnly (tsconfig.app.json)
+                enumsAsTypes: true,
+            },
         }
     }
 };

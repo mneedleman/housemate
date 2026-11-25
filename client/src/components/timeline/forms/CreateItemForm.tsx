@@ -1,83 +1,33 @@
-import { FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import FormSelect, { FormSelectOption } from "../../forms/FormSelect";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { MutationCreateTimelineItemArgs, useCreateTimelineItemMutation } from "src/__generated__/types";
+import FormActions from "src/components/forms/FormActions";
 import { useModal } from "src/components/modal/Modal";
-import FormInput from "src/components/forms/FormInput";
-import TextAreaInput from "src/components/forms/TextAreaInput";
-import Col from "src/components/flex/Col";
+import { fromDateInput } from "src/utils/dateUtils";
+import ItemFields from "./ItemFields";
 
-export const UNIT_OPTIONS: FormSelectOption<FieldValues>[] = [
-  { value: "days", label: "Day(s)" },
-  { value: "weeks", label: "Week(s)" },
-  { value: "months", label: "Month(s)" }
-]
-
-const defaultValues: Partial<MutationCreateTimelineItemArgs> = {
-}
-
-const defaultClass = "text-lg my-2"
+export { UNIT_OPTIONS } from "./ItemFields";
 
 const CreateItemForm = () => {
   const [createItem] = useCreateTimelineItemMutation()
-  const formMethods = useForm<MutationCreateTimelineItemArgs>({ defaultValues })
-  const { register, handleSubmit, formState: { errors } } = formMethods
+  const formMethods = useForm<MutationCreateTimelineItemArgs>()
+  const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { close } = useModal()
 
-  const onSubmit: SubmitHandler<MutationCreateTimelineItemArgs> = (data) => {
+  const onSubmit: SubmitHandler<MutationCreateTimelineItemArgs> = (data) =>
     createItem({
-      variables: data,
+      variables: { ...data, lastCompletedAt: fromDateInput(data.lastCompletedAt) },
       refetchQueries: ["timelineItems"],
-      onCompleted: close
-    })
-  }
-
-  const commonProps = {
-    register,
-    errorClass: "text-red text-lg",
-    errorSpaceClass: "mb-2"
-  }
+    }).then(() => {
+      toast.success("Task added")
+      close()
+    }).catch(() => toast.error("Couldn't add that task"))
 
   return (
     <FormProvider {...formMethods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Col className="w-full justify-around">
-          <span className="self-center">Create Item</span>
-          <FormInput
-            placeholder="Title*"
-            inputClass={`${defaultClass}`}
-            fieldName="title"
-            errorField={errors.title}
-            {...commonProps}
-            required
-          />
-          <TextAreaInput
-            inputClass="my-2"
-            placeholder="Body"
-            fieldName="body"
-            errorField={errors.body}
-            {...commonProps}
-          />
-          <FormInput
-            placeholder="Value*"
-            inputClass={`${defaultClass}`}
-            fieldName="frequencyValue"
-            errorField={errors.frequencyValue}
-            {...commonProps}
-            type="number"
-            required
-          />
-          <FormSelect
-            placeholder="Units*"
-            inputClass={`${defaultClass}`}
-            fieldName="frequencyUnit"
-            type="select"
-            options={UNIT_OPTIONS}
-            errorField={errors.frequencyUnit}
-            {...commonProps}
-            required
-          />
-          <input type="submit" value="Submit" className={`mt-3 self-end`} />
-        </Col>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+        <ItemFields />
+        <FormActions submitLabel="Add task" submitting={isSubmitting} />
       </form>
     </FormProvider>
   )

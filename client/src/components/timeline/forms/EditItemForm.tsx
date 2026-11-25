@@ -1,93 +1,68 @@
-import { useMutation, useQuery } from "@apollo/client"
-import { objectWithoutKeys } from "../../../utils/objectUtils"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { useContext } from "react"
-import { ModalContext } from "../../modal/Modal"
-import FormInput from "../../forms/FormInput"
-import TextAreaInput from "../../forms/TextAreaInput"
-import FormSelect from "../../forms/FormSelect"
-import { UNIT_OPTIONS } from "./CreateItemForm"
-import { EditTimelineItemDocument, TimelineItemDocument, type MutationCreateTimelineItemArgs, type MutationEditTimelineItemArgs, type TimelineItem } from "src/__generated__/types"
-
-const defaultClass =
-  "f3 mv2 lh-copy"
+import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
+import { toast } from "react-toastify"
+import { useEditTimelineItemMutation, FrequencyEnum, useTimelineItemQuery, type MutationEditTimelineItemArgs, type TimelineItemFragment } from "src/__generated__/types"
+import FormActions from "src/components/forms/FormActions"
+import { useModal } from "src/components/modal/Modal"
+import { Skeleton } from "src/components/ui/Skeleton"
+import { fromDateInput, toDateInput } from "src/utils/dateUtils"
+import ItemFields from "./ItemFields"
 
 type Props = {
   id: string
 }
 
-type ContentProps = Props & {
-  item: TimelineItem
-}
+// The API formats the unit for display ("day" when the value is 1); the enum input wants the plural
+const toUnitEnum = (unit?: string | null) =>
+  unit ? ((unit.endsWith("s") ? unit : `${unit}s`) as FrequencyEnum) : undefined
 
-const EditItemFormContent = ({ id, item }: ContentProps) => {
-  const [editIem] = useMutation(EditTimelineItemDocument, {
-    refetchQueries: [
-      { query: TimelineItemDocument, variables: { id } }
-    ]
+const EditItemFormContent = ({ item }: { item: TimelineItemFragment }) => {
+  const [editItem] = useEditTimelineItemMutation()
+  const { close } = useModal()
+
+  const formMethods = useForm<MutationEditTimelineItemArgs>({
+    defaultValues: {
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      frequencyValue: item.frequencyValue,
+      frequencyUnit: toUnitEnum(item.frequencyUnit),
+      lastCompletedAt: toDateInput(item.lastCompletedAt),
+    }
   })
-  const { close } = useContext(ModalContext)
+  const { handleSubmit, formState: { isSubmitting } } = formMethods
 
-  const defaultValues: Partial<MutationCreateTimelineItemArgs> = objectWithoutKeys(item, "__typename")
-  const { register, handleSubmit, formState: { errors } } = useForm<MutationEditTimelineItemArgs>({ defaultValues })
-
-  const onSubmit: SubmitHandler<MutationEditTimelineItemArgs> = (data) => {
-    editIem({ variables: data, onCompleted: close })
-  }
-
-  const commonProps = {
-    register,
-    errorClass: "red f6 tr nt2 mb2",
-    errorSpaceClass: "mb2"
-  }
+  const onSubmit: SubmitHandler<MutationEditTimelineItemArgs> = (data) =>
+    editItem({
+      variables: { ...data, id: item.id, lastCompletedAt: fromDateInput(data.lastCompletedAt) },
+    }).then(() => {
+      toast.success("Task updated")
+      close()
+    }).catch(() => toast.error("Couldn't save your changes"))
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-column w5 mv2 mh3 justify-around">
-      <span className="f2 b self-center">Edit Item</span>
-      <FormInput
-        placeholder="Title*"
-        inputClass={`${defaultClass}`}
-        fieldName="title"
-        errorField={errors.title}
-        {...commonProps}
-        required
-      />
-      <TextAreaInput
-        inputClass="mv2 h3 f3"
-        placeholder="Body"
-        fieldName="body"
-        errorField={errors.body}
-        {...commonProps}
-      />
-      <FormInput
-        placeholder="Value*"
-        inputClass={`${defaultClass}`}
-        fieldName="frequencyValue"
-        errorField={errors.frequencyValue}
-        {...commonProps}
-        type="number"
-      />
-      <FormSelect
-        placeholder="Units*"
-        inputClass={`${defaultClass}`}
-        fieldName="frequencyUnit"
-        type="select"
-        options={UNIT_OPTIONS}
-        errorField={errors.frequencyUnit}
-        {...commonProps}
-        required
-      />
-      <input type="submit" value="Submit" className={`mt3 f3 self-end`} />
-    </form>
+    <FormProvider {...formMethods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
+        <ItemFields />
+        <FormActions submitLabel="Save changes" submitting={isSubmitting} />
+      </form>
+    </FormProvider>
   )
 }
 
 const EditItemForm = ({ id }: Props) => {
-  const { data } = useQuery(TimelineItemDocument, { variables: { id } })
+  const { data } = useTimelineItemQuery({ variables: { id } })
 
-  if (!data?.timelineItem) return <></>
+  if (!data?.timelineItem) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+    )
+  }
 
-  return <EditItemFormContent id={id} item={data.timelineItem as TimelineItem} />
+  return <EditItemFormContent item={data.timelineItem} />
 }
 
 export default EditItemForm

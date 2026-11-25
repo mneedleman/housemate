@@ -1,6 +1,8 @@
 import { FieldValues, useFormContext } from "react-hook-form"
+import { cn } from "src/utils/cn"
 import { FormInputProps } from "./FormInput"
-import Error from "./Error"
+import Error, { type ErrorProps } from "./Error"
+import { descriptionClass as baseDescriptionClass, fieldClass } from "./fieldStyles"
 import Label from "./Label"
 
 const TextAreaInput = <T extends FieldValues,>({
@@ -10,31 +12,32 @@ const TextAreaInput = <T extends FieldValues,>({
   description,
   descriptionClass,
   inputClass,
+  containerClass,
   required,
   placeholder,
   errorField,
   errorMessage = "Required",
   errorClass,
 }: FormInputProps<T>) => {
-  const { register } = useFormContext<T>()
+  const { register, formState: { errors } } = useFormContext<T>()
+  const error = errorField ?? (errors[fieldName] as ErrorProps["errorField"])
 
   return (
-    <>
-      {label && <Label {...{ label, labelClass }} />}
+    <div className={containerClass}>
+      {label && <Label {...{ label, labelClass }} htmlFor={fieldName} />}
       {description && (
-        <span className={descriptionClass}>{description}</span>
+        <span className={cn(baseDescriptionClass, descriptionClass)}>{description}</span>
       )}
       <textarea
-        {...register(fieldName, { required })}
-        aria-invalid={errorField ? "true" : false}
+        id={fieldName}
+        rows={3}
+        {...register(fieldName, { required: required && errorMessage })}
+        aria-invalid={error ? "true" : "false"}
         placeholder={placeholder}
-        aria-placeholder={placeholder}
-        className={inputClass}
+        className={cn(fieldClass, "h-auto min-h-24 resize-y py-3 leading-relaxed", inputClass)}
       />
-      {required && (
-        <Error {...{ errorField, errorClass, errorMessage }} />
-      )}
-    </>
+      <Error {...{ errorField: error, errorClass, errorMessage }} />
+    </div>
   )
 }
 

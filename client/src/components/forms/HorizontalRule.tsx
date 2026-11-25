@@ -14,12 +14,12 @@ const HorizontalRule = ({
 }: Props) => (
   <Row className={`w-full h-px items-center ${containerClass}`}>
     <div
-      className={`flex h-px bg-secondary ${label ? "w-1/2" : "w-full"} ${lineClass}`}
+      className={`flex h-px bg-line ${label ? "w-1/2" : "w-full"} ${lineClass}`}
     />
     {label && (
       <>
-        <span className={`text-xs text-secondary ${labelClass}`}>{label}</span>
-        <div className={`flex h-px bg-secondary w-1/2 ${lineClass}`} />
+        <span className={`text-xs text-muted ${labelClass}`}>{label}</span>
+        <div className={`flex h-px bg-line w-1/2 ${lineClass}`} />
       </>
     )}
   </Row>

@@ -1,82 +1,129 @@
 @import 'tailwindcss';
 
+/*
+ * Design tokens. Utilities like bg-surface / text-muted / border-line read these,
+ * and the dark-mode block below swaps the values, so components never need dark: variants.
+ */
 @theme {
-  --color-background: #242424;
-  --color-primary: #646cff;
-  --color-secondary: #535bf2;
-  --color-tertiary: #1a1a1a;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-canvas: #f6f5f2;
+  --color-surface: #ffffff;
+  --color-raised: #f1f0ec;
+  --color-line: #e4e2dc;
+  --color-ink: #1c1b19;
+  --color-muted: #6b6862;
+
+  --color-accent: #0f766e;
+  --color-accent-hover: #0d645d;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: #e0f2ef;
+  --color-accent-soft-ink: #0b5751;
+
+  --color-danger: #c2410c;
+  --color-danger-soft: #fdece3;
+  --color-warn: #a16207;
+  --color-warn-soft: #fbf1d9;
+  --color-ok: #15803d;
+  --color-ok-soft: #e3f4e8;
+
+  --shadow-card: 0 1px 2px rgb(28 27 25 / 0.04), 0 1px 3px rgb(28 27 25 / 0.06);
+  --shadow-pop: 0 10px 30px -8px rgb(28 27 25 / 0.25), 0 2px 6px rgb(28 27 25 / 0.08);
+
+  --animate-sheet-up: sheet-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-pop-in: pop-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(4px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
 }
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: #646cff;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --color-canvas: #121211;
+    --color-surface: #1b1b19;
+    --color-raised: #252523;
+    --color-line: #2f2f2c;
+    --color-ink: #ecebe7;
+    --color-muted: #9c9a93;
+
+    --color-accent: #2dd4bf;
+    --color-accent-hover: #5eead4;
+    --color-accent-ink: #042f2b;
+    --color-accent-soft: #10302c;
+    --color-accent-soft-ink: #8ff0e0;
+
+    --color-danger: #fb923c;
+    --color-danger-soft: #3a2116;
+    --color-warn: #facc15;
+    --color-warn-soft: #34290f;
+    --color-ok: #4ade80;
+    --color-ok-soft: #13301d;
+
+    --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  a:hover {
-    color: #747bff;
+  html,
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
   }
 
-  button {
-    background-color: #f9f9f9;
+  body {
+    min-height: 100dvh;
+    margin: 0;
   }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Safe-area helpers for notched phones (needs viewport-fit=cover in index.html) */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
 }
