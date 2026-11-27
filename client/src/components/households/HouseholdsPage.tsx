@@ -1,11 +1,12 @@
+import { useQuery } from "@apollo/client/react"
 import { HomeIcon } from "@radix-ui/react-icons"
-import { useHouseholdsQuery } from "src/__generated__/types"
+import { HouseholdsDocument } from "src/__generated__/types"
 import EmptyState from "../ui/EmptyState"
 import { SkeletonList } from "../ui/Skeleton"
 import HouseholdItem from "./HouseholdItem"
 
 const HouseholdsPage = () => {
-  const { data, loading } = useHouseholdsQuery()
+  const { data, loading } = useQuery(HouseholdsDocument)
 
   if (loading && !data) return <SkeletonList count={2} />
 

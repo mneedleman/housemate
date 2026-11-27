@@ -1,7 +1,8 @@
+import { useQuery } from "@apollo/client/react"
 import { ArrowRightIcon, CookieIcon, HomeIcon, LoopIcon } from "@radix-ui/react-icons"
 import type { ReactNode } from "react"
 import { Link } from "react-router"
-import { useHouseholdsQuery, useLeftoversQuery, useTimelineItemsQuery } from "src/__generated__/types"
+import { HouseholdsDocument, LeftoversDocument, TimelineItemsDocument } from "src/__generated__/types"
 import { cn } from "src/utils/cn"
 import { daysFromToday, toDate } from "src/utils/dateUtils"
 import { firstName } from "src/utils/stringUtils"
@@ -64,9 +65,9 @@ const Quiet = ({ children }: { children: ReactNode }) => (
 
 const DashboardPage = () => {
   const { currentUser } = useAuth()
-  const { data: timeline } = useTimelineItemsQuery()
-  const { data: leftoversData } = useLeftoversQuery()
-  const { data: householdsData } = useHouseholdsQuery()
+  const { data: timeline } = useQuery(TimelineItemsDocument)
+  const { data: leftoversData } = useQuery(LeftoversDocument)
+  const { data: householdsData } = useQuery(HouseholdsDocument)
 
   const items = timeline?.timelineItems ? [...timeline.timelineItems].sort(byDueDate) : undefined
   const needsAttention = items?.filter((i) => ["overdue", "soon"].includes(statusOf(i)))

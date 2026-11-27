@@ -4,6 +4,7 @@ import {
   type PropsWithChildren,
   useContext,
   useEffect,
+  useEffectEvent,
   useId,
   useRef,
 } from "react"
@@ -32,14 +33,13 @@ type Props = {
 const Modal = ({ open, onClose, title, description, children }: PropsWithChildren<Props>) => {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
-  // Callers pass inline closures; keep the latest without re-running the open/close effect
-  const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
+  // Callers pass inline closures; always call the latest without re-running the open/close effect
+  const onEscape = useEffectEvent(() => onClose())
 
   useEffect(() => {
     if (!open) return
 
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onCloseRef.current()
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onEscape()
     document.addEventListener("keydown", onKey)
 
     const previousOverflow = document.body.style.overflow

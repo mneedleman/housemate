@@ -3,7 +3,7 @@ module Queries
     extend ActiveSupport::Concern
 
     included do
-      field :households, [Types::HouseholdType]
+      field :households, [ Types::HouseholdType ]
     end
 
     def households

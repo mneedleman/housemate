@@ -1,6 +1,6 @@
 # Production image: build the SPA, then serve it (and proxy the API) with Caddy.
 # The Caddyfile is mounted at runtime by docker-compose.prod.yml.
-FROM node:22-slim AS build
+FROM node:24-slim AS build
 
 WORKDIR /app
 

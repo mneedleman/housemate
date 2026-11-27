@@ -1,7 +1,8 @@
+import { useQuery } from "@apollo/client/react"
 import { ExitIcon, PlusIcon } from "@radix-ui/react-icons"
 import { type PropsWithChildren, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router"
-import { useHouseholdsQuery } from "src/__generated__/types"
+import { HouseholdsDocument } from "src/__generated__/types"
 import { cn } from "src/utils/cn"
 import { useAuth } from "../auth/AuthProvider"
 import DropMenu from "../dropdown/DropMenu"
@@ -33,7 +34,7 @@ const UserMenu = () => {
 
 const Sidebar = () => {
   const { currentUser } = useAuth()
-  const { data } = useHouseholdsQuery()
+  const { data } = useQuery(HouseholdsDocument)
   const household = data?.households?.find((h) => h.id === currentUser?.householdId)
 
   return (

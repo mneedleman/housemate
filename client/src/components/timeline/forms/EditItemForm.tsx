@@ -1,6 +1,7 @@
+import { useMutation, useQuery } from "@apollo/client/react"
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
 import { toast } from "react-toastify"
-import { useEditTimelineItemMutation, FrequencyEnum, useTimelineItemQuery, type MutationEditTimelineItemArgs, type TimelineItemFragment } from "src/__generated__/types"
+import { EditTimelineItemDocument, TimelineItemDocument, FrequencyEnum, type EditTimelineItemMutationVariables, type TimelineItemFragment } from "src/__generated__/types"
 import FormActions from "src/components/forms/FormActions"
 import { useModal } from "src/components/modal/Modal"
 import { Skeleton } from "src/components/ui/Skeleton"
@@ -16,10 +17,10 @@ const toUnitEnum = (unit?: string | null) =>
   unit ? ((unit.endsWith("s") ? unit : `${unit}s`) as FrequencyEnum) : undefined
 
 const EditItemFormContent = ({ item }: { item: TimelineItemFragment }) => {
-  const [editItem] = useEditTimelineItemMutation()
+  const [editItem] = useMutation(EditTimelineItemDocument)
   const { close } = useModal()
 
-  const formMethods = useForm<MutationEditTimelineItemArgs>({
+  const formMethods = useForm<EditTimelineItemMutationVariables>({
     defaultValues: {
       id: item.id,
       title: item.title,
@@ -31,7 +32,7 @@ const EditItemFormContent = ({ item }: { item: TimelineItemFragment }) => {
   })
   const { handleSubmit, formState: { isSubmitting } } = formMethods
 
-  const onSubmit: SubmitHandler<MutationEditTimelineItemArgs> = (data) =>
+  const onSubmit: SubmitHandler<EditTimelineItemMutationVariables> = (data) =>
     editItem({
       variables: { ...data, id: item.id, lastCompletedAt: fromDateInput(data.lastCompletedAt) },
     }).then(() => {
@@ -50,7 +51,7 @@ const EditItemFormContent = ({ item }: { item: TimelineItemFragment }) => {
 }
 
 const EditItemForm = ({ id }: Props) => {
-  const { data } = useTimelineItemQuery({ variables: { id } })
+  const { data } = useQuery(TimelineItemDocument, { variables: { id } })
 
   if (!data?.timelineItem) {
     return (

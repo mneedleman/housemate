@@ -3,7 +3,7 @@ module Queries
     extend ActiveSupport::Concern
 
     included do
-      field :timeline_items, [Types::TimelineItemType, null: false], null: true
+      field :timeline_items, [ Types::TimelineItemType, null: false ], null: true
 
       field :timeline_item, Types::TimelineItemType, null: false do
         argument :id, GraphQL::Types::ID
