@@ -25,11 +25,9 @@ class GraphqlController < ApplicationController
 
   def current_user
     return unless (token = request.headers[:authorization])
-    _, token = token.split()
-    res = JWT.decode(token, nil, false)
-    User.find(res.dig(0, "user"))
-  rescue
-    nil
+    _, token = token.split
+    return unless (user_id = AuthToken.decode(token))
+    User.find_by(id: user_id)
   end
 
   # Handle variables in form data, JSON body, or a blank value

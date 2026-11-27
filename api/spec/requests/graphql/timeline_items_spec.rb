@@ -4,7 +4,7 @@ RSpec.describe "GraphQL timelineItems", type: :request do
   let(:household) { create(:household) }
   let(:user) { create(:user, household: household) }
   let!(:item) { create(:timeline_item, user: user, household: household) }
-  let(:token) { JWT.encode({ user: user.id }, 'foo') }
+  let(:token) { AuthToken.encode(user) }
 
   def run_query(fields)
     post "/graphql",
@@ -17,7 +17,6 @@ RSpec.describe "GraphQL timelineItems", type: :request do
   it "resolves dueAt for every field the schema declares" do
     body = run_query("dueAt")
 
-    debugger
     expect(body["errors"]).to be_nil
     expect(body.dig("data", "timelineItems", 0)).to have_key("dueAt")
   end
