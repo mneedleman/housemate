@@ -27,7 +27,7 @@ const UserMenu = () => {
           <p className="truncate text-xs text-muted">{currentUser?.email}</p>
         </div>
       }
-      options={[{ label: "Log out", icon: <ExitIcon />, onSelect: logout, tone: "danger" }]}
+      options={[{ label: "Log out", icon: <ExitIcon />, onSelect: () => logout(), tone: "danger" }]}
     />
   )
 }

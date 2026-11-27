@@ -10,5 +10,11 @@ query households {
       name
       email
     }
+    # Owner only (null for other members)
+    pendingInvitations {
+      id
+      email
+      expiresAt
+    }
   }
 }

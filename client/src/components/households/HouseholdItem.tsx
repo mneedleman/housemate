@@ -11,6 +11,7 @@ import Badge from "../ui/Badge"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 import DeleteHouseholdForm from "./DeleteHouseholdForm"
+import HouseholdInvites, { type PendingInvitation } from "./HouseholdInvites"
 
 type Member = { name?: string | null, email: string }
 
@@ -21,9 +22,11 @@ type Props = {
   /** Whether the current user owns it (only owners can delete) */
   isOwner: boolean
   ownerEmail?: string | null
+  /** Owner only */
+  pendingInvitations?: PendingInvitation[] | null
 }
 
-const HouseholdItem = ({ id, name, users, isOwner, ownerEmail }: Props) => {
+const HouseholdItem = ({ id, name, users, isOwner, ownerEmail, pendingInvitations }: Props) => {
   const [showMembers, toggleShowMembers] = useToggle()
   const [deleteOpen, toggleDelete, setDeleteOpen] = useToggle()
   const { currentUser } = useAuth()
@@ -56,6 +59,7 @@ const HouseholdItem = ({ id, name, users, isOwner, ownerEmail }: Props) => {
           </div>
           <p className="mt-0.5 text-sm text-muted">
             {members.length} {members.length === 1 ? "member" : "members"}
+            {!!pendingInvitations?.length && <> · {pendingInvitations.length} invited</>}
           </p>
         </div>
         {/* On the narrowest phones the name needs the room; members are listed when expanded */}
@@ -79,6 +83,7 @@ const HouseholdItem = ({ id, name, users, isOwner, ownerEmail }: Props) => {
               </li>
             ))}
           </ul>
+          {isOwner && <HouseholdInvites householdId={id} pending={pendingInvitations ?? []} />}
           {(!isCurrent || isOwner) && (
           <div className="flex flex-col gap-2 border-t border-line p-4 sm:flex-row">
             {!isCurrent && (

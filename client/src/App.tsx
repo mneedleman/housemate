@@ -5,6 +5,7 @@ import AuthProvider from './components/auth/AuthProvider';
 import AuthedRoute from './components/auth/AuthedRoute';
 import DashboardPage from './components/dashboard/DashboardPage';
 import HouseholdsPage from './components/households/HouseholdsPage';
+import InvitePage from './components/invitations/InvitePage';
 import LeftoversPage from './components/leftovers/LeftoversPage';
 import TestApi from './components/TestApi';
 import TimelinePage from './components/timeline/TimelinePage';
@@ -19,6 +20,8 @@ const App = () => {
         <Route path={'/dashboard'} element={<AuthedRoute><DashboardPage /></AuthedRoute>} />
         <Route path={'/timeline'} element={<AuthedRoute><TimelinePage /></AuthedRoute>} />
         <Route path={'/login'} element={<AuthPage to={'/dashboard'} />} />
+        {/* Emailed invitation links; works signed in or out */}
+        <Route path="/invite/:token" element={<InvitePage />} />
         <Route path={'/testApi'} element={<AuthedRoute><TestApi /></AuthedRoute>} />
         <Route path={'/leftovers'} element={<AuthedRoute><LeftoversPage /></AuthedRoute>} />
         <Route path={'/households'} element={<AuthedRoute><HouseholdsPage /></AuthedRoute>} />
