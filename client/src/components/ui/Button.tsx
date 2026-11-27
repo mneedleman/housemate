@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react"
 import { cn } from "src/utils/cn"
 
-type Variant = "primary" | "secondary" | "ghost" | "danger"
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "danger-ghost"
 type Size = "sm" | "md" | "lg"
 
 const variants: Record<Variant, string> = {
@@ -9,6 +9,8 @@ const variants: Record<Variant, string> = {
   secondary: "bg-surface text-ink border border-line hover:bg-raised",
   ghost: "text-ink hover:bg-raised",
   danger: "bg-danger text-white hover:opacity-90 shadow-card",
+  // Destructive but secondary actions (e.g. the delete button that opens a confirmation)
+  "danger-ghost": "text-danger hover:bg-danger-soft",
 }
 
 // Mobile-first: md is a 44px touch target

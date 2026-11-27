@@ -58,11 +58,18 @@ module Mutations
       end
     end
 
+    # Deletes the household with its tasks and leftovers. Anyone who had it as their current
+    # household is moved to another household they belong to (or none).
     def delete_household(id:)
       return unless current_user
-      return unless (household = current_user.households.find(id))
 
-      household.destroy
+      household = current_user.households.find(id)
+      Household.transaction do
+        affected = household.current_users.to_a
+        household.destroy!
+        affected.each { |user| user.update!(household: user.households.order(:id).first) }
+      end
+      true
     end
 
     def add_user_to_household(id:, user_id:)
