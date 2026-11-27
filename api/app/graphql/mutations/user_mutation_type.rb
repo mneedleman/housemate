@@ -46,9 +46,7 @@ module Mutations
 
     # private
     def create_auth_token(user)
-      payload = { user: user.id }
-      token = JWT.encode(payload, 'foo')
-      {token: token}
+      { token: AuthToken.encode(user) }
     end
   end
 end

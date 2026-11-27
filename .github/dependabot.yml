@@ -1,12 +1,17 @@
 version: 2
 updates:
 - package-ecosystem: bundler
-  directory: "/"
+  directory: "/api"
   schedule:
-    interval: daily
+    interval: weekly
+  open-pull-requests-limit: 10
+- package-ecosystem: npm
+  directory: "/client"
+  schedule:
+    interval: weekly
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
