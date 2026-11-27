@@ -1,6 +1,7 @@
 # Production stack for a single server (Lightsail). Run from the repo root on the server:
 #   docker compose -f docker-compose.prod.yml --env-file /opt/housemate/.env up -d --build
-# Required in the env file: APP_DOMAIN, POSTGRES_PASSWORD, SECRET_KEY_BASE (see deploy/README.md)
+# Required in the env file: APP_DOMAIN, POSTGRES_PASSWORD, SECRET_KEY_BASE,
+#   MAIL_FROM, SMTP_USERNAME, SMTP_PASSWORD (Amazon SES; see deploy/README.md)
 
 services:
   db:
@@ -30,6 +31,14 @@ services:
       RAILS_MAX_THREADS: 3
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/housemate_production
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:?set SECRET_KEY_BASE}
+      # Links in emails point here
+      APP_URL: https://${APP_DOMAIN}
+      # Email via Amazon SES. MAIL_FROM must be on the SES-verified domain, e.g. "Housemate <no-reply@housemate.info>"
+      MAIL_FROM: ${MAIL_FROM:?set MAIL_FROM (see deploy/README.md)}
+      SMTP_ADDRESS: ${SMTP_ADDRESS:-email-smtp.us-west-2.amazonaws.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:?set SMTP_USERNAME (SES SMTP credentials)}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?set SMTP_PASSWORD (SES SMTP credentials)}
     # The entrypoint runs db:prepare (create + migrate) before starting the server
     depends_on:
       db:

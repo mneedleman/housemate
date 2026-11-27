@@ -37,6 +37,10 @@ if [ ! -f "$BASE/.env" ]; then
 APP_DOMAIN=$APP_DOMAIN
 POSTGRES_PASSWORD=$(openssl rand -hex 24)
 SECRET_KEY_BASE=$(openssl rand -hex 64)
+# Email (Amazon SES): fill these in before deploying; see "Set up email" in deploy/README.md
+# MAIL_FROM=Housemate <no-reply@your-domain>
+# SMTP_USERNAME=
+# SMTP_PASSWORD=
 EOF
   chown "$APP_USER:$APP_USER" "$BASE/.env"
   chmod 600 "$BASE/.env"
@@ -50,5 +54,6 @@ cat > /etc/cron.d/housemate-backup <<EOF
 EOF
 
 echo
-echo "Done. Next: add the GitHub Actions deploy key to /home/$APP_USER/.ssh/authorized_keys"
-echo "(see deploy/README.md), then push to master."
+echo "Done. Next: set up email (MAIL_FROM, SMTP_USERNAME, SMTP_PASSWORD in $BASE/.env) and add the"
+echo "GitHub Actions deploy key to /home/$APP_USER/.ssh/authorized_keys"
+echo "(both in deploy/README.md), then push to master."
