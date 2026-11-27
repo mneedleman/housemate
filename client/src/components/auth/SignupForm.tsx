@@ -1,7 +1,7 @@
 import { EnvelopeClosedIcon, LockClosedIcon, PersonIcon } from "@radix-ui/react-icons"
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
 import { type To } from "react-router"
-import type { MutationSignupArgs } from "src/__generated__/types"
+import type { SignupMutationVariables } from "src/__generated__/types"
 import FormInput from "../forms/FormInput"
 import Button from "../ui/Button"
 import { useAuth } from "./AuthProvider"
@@ -11,11 +11,11 @@ type Props = {
   toggleSignup: () => void
 }
 const SignupForm = ({ to, toggleSignup }: Props) => {
-  const formMethods = useForm<MutationSignupArgs>()
+  const formMethods = useForm<SignupMutationVariables>()
   const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { signup } = useAuth();
 
-  const onSubmit: SubmitHandler<MutationSignupArgs> = (data) => signup(data, to)
+  const onSubmit: SubmitHandler<SignupMutationVariables> = (data) => signup(data, to)
 
   return (
     <FormProvider {...formMethods}>
@@ -48,6 +48,7 @@ const SignupForm = ({ to, toggleSignup }: Props) => {
           placeholder="At least 8 characters"
           icon={<LockClosedIcon />}
           errorMessage="Password is required"
+          validate={(value) => String(value ?? "").length >= 8 || "Use at least 8 characters"}
           required
         />
         <Button type="submit" size="lg" block loading={isSubmitting} className="mt-2">

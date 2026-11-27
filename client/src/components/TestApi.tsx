@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@apollo/client/react"
 import { TestFieldDocument } from 'src/__generated__/types';
 
 const TestApi = () => {

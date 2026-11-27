@@ -3,7 +3,7 @@ module Queries
     extend ActiveSupport::Concern
 
     included do
-      field :leftovers, [Types::LeftoverType, null: false], null: true
+      field :leftovers, [ Types::LeftoverType, null: false ], null: true
 
       field :leftover, Types::LeftoverType, null: false do
         argument :id, GraphQL::Types::ID

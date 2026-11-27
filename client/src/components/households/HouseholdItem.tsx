@@ -1,6 +1,7 @@
+import { useMutation } from "@apollo/client/react"
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons"
 import { toast } from "react-toastify"
-import { useSetHouseholdMutation, type User } from "src/__generated__/types"
+import { SetHouseholdDocument } from "src/__generated__/types"
 import { cn } from "src/utils/cn"
 import useToggle from "../../hooks/useToggle"
 import { useAuth } from "../auth/AuthProvider"
@@ -9,7 +10,7 @@ import Badge from "../ui/Badge"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
 
-type Member = Pick<User, "name" | "email">
+type Member = { name?: string | null, email: string }
 
 type Props = {
   name: string
@@ -21,7 +22,7 @@ const HouseholdItem = ({ id, name, users }: Props) => {
   const [showMembers, toggleShowMembers] = useToggle()
   const { currentUser } = useAuth()
   const isCurrent = id === currentUser?.householdId
-  const [setHousehold, { loading }] = useSetHouseholdMutation({
+  const [setHousehold, { loading }] = useMutation(SetHouseholdDocument, {
     variables: { id },
     // currentUser carries householdId (moves the "Current" badge); the timeline is household-scoped
     refetchQueries: ["currentUser", "timelineItems"],

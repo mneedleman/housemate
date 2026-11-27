@@ -1,7 +1,7 @@
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import { FormProvider, useForm, SubmitHandler } from "react-hook-form"
 import { To } from "react-router";
-import { MutationLoginArgs } from "src/__generated__/types";
+import { LoginMutationVariables } from "src/__generated__/types";
 import FormInput from "../forms/FormInput";
 import Button from "../ui/Button";
 import { useAuth } from "./AuthProvider";
@@ -16,11 +16,11 @@ type Props = {
   toggleSignup: () => void
 }
 const LoginForm = ({ to, toggleSignup }: Props) => {
-  const formMethods = useForm<MutationLoginArgs>({ defaultValues })
+  const formMethods = useForm<LoginMutationVariables>({ defaultValues })
   const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { login } = useAuth();
 
-  const onSubmit: SubmitHandler<MutationLoginArgs> = (data) => login(data, to)
+  const onSubmit: SubmitHandler<LoginMutationVariables> = (data) => login(data, to)
 
   return (
     <FormProvider {...formMethods}>

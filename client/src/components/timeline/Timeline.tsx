@@ -1,5 +1,6 @@
+import { useQuery } from "@apollo/client/react"
 import { LoopIcon, PlusIcon } from '@radix-ui/react-icons'
-import { useTimelineItemsQuery } from 'src/__generated__/types'
+import { TimelineItemsDocument } from 'src/__generated__/types'
 import { useCreate } from '../layout/CreateContext'
 import Button from '../ui/Button'
 import EmptyState from '../ui/EmptyState'
@@ -15,7 +16,7 @@ const SECTIONS: { status: TimelineStatus; label: string }[] = [
 ]
 
 const Timeline = () => {
-  const { data, loading } = useTimelineItemsQuery()
+  const { data, loading } = useQuery(TimelineItemsDocument)
   const { openCreate } = useCreate()
 
   if (loading && !data) {

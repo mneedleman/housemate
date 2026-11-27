@@ -1,6 +1,7 @@
+import { useMutation } from "@apollo/client/react"
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { MutationCreateTimelineItemArgs, useCreateTimelineItemMutation } from "src/__generated__/types";
+import { CreateTimelineItemDocument, CreateTimelineItemMutationVariables } from "src/__generated__/types";
 import FormActions from "src/components/forms/FormActions";
 import { useModal } from "src/components/modal/Modal";
 import { fromDateInput } from "src/utils/dateUtils";
@@ -9,12 +10,12 @@ import ItemFields from "./ItemFields";
 export { UNIT_OPTIONS } from "./ItemFields";
 
 const CreateItemForm = () => {
-  const [createItem] = useCreateTimelineItemMutation()
-  const formMethods = useForm<MutationCreateTimelineItemArgs>()
+  const [createItem] = useMutation(CreateTimelineItemDocument)
+  const formMethods = useForm<CreateTimelineItemMutationVariables>()
   const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { close } = useModal()
 
-  const onSubmit: SubmitHandler<MutationCreateTimelineItemArgs> = (data) =>
+  const onSubmit: SubmitHandler<CreateTimelineItemMutationVariables> = (data) =>
     createItem({
       variables: { ...data, lastCompletedAt: fromDateInput(data.lastCompletedAt) },
       refetchQueries: ["timelineItems"],

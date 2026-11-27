@@ -29,19 +29,19 @@ class TimelineItem < ApplicationRecord
 
   has_many :timeline_item_instances, dependent: :destroy
 
-  enum frequency_unit: [
+  enum :frequency_unit, [
     :days,
     :weeks,
     :months
   ]
 
   def frequency_unit_formatted
-    return '' if frequency_value.blank?
+    return "" if frequency_value.blank?
     return frequency_unit.singularize if frequency_value < 2
-  
+
     frequency_unit
   end
-  
+
   def frequency
     "#{frequency_value} #{frequency_unit_formatted}"
   end

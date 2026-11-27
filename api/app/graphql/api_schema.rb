@@ -24,7 +24,16 @@ class ApiSchema < GraphQL::Schema
   end
 
   # Limit the size of incoming queries:
+  # Return these as GraphQL errors instead of crashing the request with a 500
+  rescue_from(ActiveRecord::RecordNotFound) { raise GraphQL::ExecutionError, "Not found" }
+  rescue_from(ActiveRecord::RecordInvalid) do |err|
+    raise GraphQL::ExecutionError, err.record.errors.full_messages.to_sentence
+  end
+
   max_query_string_tokens(5000)
+  # Reject abusive queries (deeply nested or huge) before they run
+  max_depth(15)
+  max_complexity(500)
 
   # Stop validating when it encounters this many errors:
   validate_max_errors(100)

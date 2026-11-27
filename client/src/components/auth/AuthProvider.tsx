@@ -1,15 +1,11 @@
-import { useApolloClient } from "@apollo/client";
-import { useContext, createContext, PropsWithChildren, useState, useMemo } from "react";
-import { To, useNavigate } from "react-router";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client/react"
+import { CombinedGraphQLErrors } from "@apollo/client"
+import { useContext, createContext, type PropsWithChildren, useEffect, useState, useMemo } from "react";
+import { type To, useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import {
-  useCurrentUserQuery,
-  LoginMutationVariables,
-  SignupMutationVariables,
-  User,
-  useLoginMutation,
-  useSignupMutation
-} from "src/__generated__/types";
+import { CurrentUserDocument, LoginDocument, SignupDocument, type CurrentUserQuery, type LoginMutationVariables, type SignupMutationVariables } from "src/__generated__/types";
+
+export type CurrentUser = NonNullable<CurrentUserQuery["currentUser"]>
 
 type Login = (data: LoginMutationVariables, to: To) => Promise<void>
 type Signup = (data: SignupMutationVariables, to: To) => Promise<void>
@@ -20,7 +16,7 @@ type AuthType = {
   signup: Signup
   logout: () => void
   signedIn: boolean
-  currentUser?: User | null
+  currentUser?: CurrentUser | null
 }
 
 const TOKEN_KEY = "housemate-bearer"
@@ -28,17 +24,29 @@ const TOKEN_KEY = "housemate-bearer"
 const AuthContext = createContext<AuthType | null>(null);
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
-  const [apiLogin] = useLoginMutation()
-  const [apiSignup] = useSignupMutation()
+  const [apiLogin] = useMutation(LoginDocument)
+  const [apiSignup] = useMutation(SignupDocument)
   const [token, setToken] = useState(localStorage.getItem(TOKEN_KEY) || null)
   const navigate = useNavigate()
   const apollo = useApolloClient()
 
-  const { data } = useCurrentUserQuery({
+  const { data } = useQuery(CurrentUserDocument, {
     skip: !token
   })
 
-  const currentUser = data?.currentUser as User | null | undefined;
+  const currentUser = data?.currentUser
+
+  // The server answered but didn't recognise the token (expired or revoked): sign out
+  const tokenRejected = !!token && data !== undefined && data.currentUser === null
+  useEffect(() => {
+    if (!tokenRejected) return
+    localStorage.removeItem(TOKEN_KEY)
+    toast.info("Your session expired. Please log in again.", { toastId: "session-expired" })
+    apollo.clearStore().then(() => {
+      setToken(null)
+      navigate("/login")
+    })
+  }, [tokenRejected, apollo, navigate])
 
   const storeToken = (value: string) => {
     localStorage.setItem(TOKEN_KEY, value)
@@ -52,8 +60,9 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       storeToken(value)
       toast.success("Welcome back!")
       navigate(to)
-    }).catch(() => {
-      toast.error("That email and password didn't match")
+    }).catch((error) => {
+      // Server messages (e.g. rate limiting) are shown as-is; a null token means bad credentials
+      toast.error(CombinedGraphQLErrors.is(error) ? error.message : "That email and password didn't match")
     })
 
   const signup: Signup = (data, to) =>
@@ -63,8 +72,9 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       storeToken(value)
       toast.success("Account created")
       navigate(to)
-    }).catch(() => {
-      toast.error("Couldn't create that account")
+    }).catch((error) => {
+      // e.g. "Password is too short (minimum is 8 characters)" or "Email has already been taken"
+      toast.error(CombinedGraphQLErrors.is(error) ? error.message : "Couldn't create that account")
     })
 
   const logout = () => {

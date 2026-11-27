@@ -20,6 +20,5 @@
 #
 FactoryBot.define do
   factory :timeline_item_instance do
-    
   end
 end

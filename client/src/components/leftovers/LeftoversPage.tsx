@@ -1,5 +1,6 @@
+import { useQuery } from "@apollo/client/react"
 import { CookieIcon, PlusIcon } from "@radix-ui/react-icons"
-import { useLeftoversQuery } from "src/__generated__/types"
+import { LeftoversDocument } from "src/__generated__/types"
 import { toDate } from "src/utils/dateUtils"
 import { useCreate } from "../layout/CreateContext"
 import Button from "../ui/Button"
@@ -8,7 +9,7 @@ import { SkeletonList } from "../ui/Skeleton"
 import LeftoversList from "./LeftoversList"
 
 const LeftoversPage = () => {
-  const { data, loading } = useLeftoversQuery()
+  const { data, loading } = useQuery(LeftoversDocument)
   const { openCreate } = useCreate()
 
   if (loading && !data) return <SkeletonList />

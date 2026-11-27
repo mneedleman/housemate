@@ -1,23 +1,25 @@
+import { useMutation } from "@apollo/client/react"
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
 import { toast } from "react-toastify"
-import { useCreateLeftoverMutation, type MutationCreateLeftoverArgs } from "src/__generated__/types"
+import { CreateLeftoverDocument, type CreateLeftoverMutationVariables } from "src/__generated__/types"
 import { fromDateInput } from "src/utils/dateUtils"
 import FormActions from "../forms/FormActions"
 import FormInput from "../forms/FormInput"
 import { useModal } from "../modal/Modal"
 
 const CreateLeftoverForm = () => {
-  const [createLeftover] = useCreateLeftoverMutation()
-  const formMethods = useForm<MutationCreateLeftoverArgs>()
+  const [createLeftover] = useMutation(CreateLeftoverDocument)
+  const formMethods = useForm<CreateLeftoverMutationVariables>()
   const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { close } = useModal()
 
-  const onSubmit: SubmitHandler<MutationCreateLeftoverArgs> = (data) =>
+  const onSubmit: SubmitHandler<CreateLeftoverMutationVariables> = (data) =>
     createLeftover({
       variables: {
         ...data,
         allergens: data.allergens || undefined,
-        trashBy: fromDateInput(data.trashBy),
+        // Required field (the form enforces it), so conversion always has a value to work with
+        trashBy: fromDateInput(data.trashBy) ?? data.trashBy,
         useBy: fromDateInput(data.useBy),
       },
       refetchQueries: ["leftovers"],

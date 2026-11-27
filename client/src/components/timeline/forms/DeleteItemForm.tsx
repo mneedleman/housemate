@@ -1,5 +1,6 @@
+import { useMutation } from "@apollo/client/react"
 import { toast } from "react-toastify"
-import { useDeleteTimelineItemMutation } from "src/__generated__/types"
+import { DeleteTimelineItemDocument } from "src/__generated__/types"
 import FormActions from "src/components/forms/FormActions"
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
 }
 
 const DeleteItemForm = ({ id, title }: Props) => {
-  const [deleteItem, { loading }] = useDeleteTimelineItemMutation({
+  const [deleteItem, { loading }] = useMutation(DeleteTimelineItemDocument, {
     variables: { id },
     refetchQueries: ["timelineItems"]
   })
