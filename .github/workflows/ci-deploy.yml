@@ -30,7 +30,7 @@ jobs:
       DB_PASSWORD: postgres
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -55,7 +55,7 @@ jobs:
         working-directory: client
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -83,7 +83,7 @@ jobs:
       DEPLOY_TARGET: ${{ vars.DEPLOY_USER || 'ubuntu' }}@${{ secrets.DEPLOY_HOST }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up SSH
         run: |
