@@ -6,6 +6,7 @@ module Types
     include Queries::TimelineQueryType
     include Queries::LeftoverQueryType
     include Queries::HouseholdQueryType
+    include Queries::InvitationQueryType
 
     field :test_field, String, null: false, description: "An example field added by the generator"
 

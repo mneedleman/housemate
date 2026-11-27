@@ -21,10 +21,6 @@ module Mutations
         argument :id, GraphQL::Types::ID, required: true
       end
 
-      field :add_user_to_household, GraphQL::Types::Boolean do
-        argument :id, GraphQL::Types::ID, required: true
-        argument :user_id, GraphQL::Types::ID, required: true
-      end
 
       field :remove_user_from_household, GraphQL::Types::Boolean do
         argument :id, GraphQL::Types::ID, required: true
@@ -74,13 +70,6 @@ module Mutations
       true
     end
 
-    def add_user_to_household(id:, user_id:)
-      return unless current_user
-      return unless (household = current_user.households.find(id))
-      return unless (user = User.find(user_id))
-
-      household.users << user
-    end
 
     def remove_user_from_household(id:, user_id:)
       return unless current_user

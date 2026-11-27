@@ -6,6 +6,7 @@ module Types
     include Mutations::TimelineMutationType
     include Mutations::LeftoverMutationType
     include Mutations::HouseholdMutationType
+    include Mutations::InvitationMutationType
 
     field :test_field, String, null: false, description: "An example field added by the generator"
 
