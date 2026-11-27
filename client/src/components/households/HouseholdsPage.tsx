@@ -1,12 +1,15 @@
 import { useQuery } from "@apollo/client/react"
-import { HomeIcon } from "@radix-ui/react-icons"
+import { HomeIcon, PlusIcon } from "@radix-ui/react-icons"
 import { HouseholdsDocument } from "src/__generated__/types"
+import { useCreate } from "../layout/CreateContext"
+import Button from "../ui/Button"
 import EmptyState from "../ui/EmptyState"
 import { SkeletonList } from "../ui/Skeleton"
 import HouseholdItem from "./HouseholdItem"
 
 const HouseholdsPage = () => {
   const { data, loading } = useQuery(HouseholdsDocument)
+  const { openCreate } = useCreate()
 
   if (loading && !data) return <SkeletonList count={2} />
 
@@ -17,7 +20,8 @@ const HouseholdsPage = () => {
       <EmptyState
         icon={<HomeIcon />}
         title="You're not in a household yet"
-        description="Once someone adds you to their household, it'll show up here."
+        description="Create one for your home, or ask someone to add you to theirs."
+        action={<Button icon={<PlusIcon />} onClick={openCreate}>New household</Button>}
       />
     )
   }

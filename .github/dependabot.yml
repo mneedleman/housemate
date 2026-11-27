@@ -1,17 +1,32 @@
 version: 2
+# Minor and patch updates arrive as one PR per ecosystem each week.
+# Major versions are left out: they usually need code changes, so upgrade them deliberately.
+# Security fixes are not affected by these limits.
 updates:
 - package-ecosystem: bundler
   directory: "/api"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
+  groups:
+    gems:
+      update-types: [ "minor", "patch" ]
+  ignore:
+    - dependency-name: "*"
+      update-types: [ "version-update:semver-major" ]
 - package-ecosystem: npm
   directory: "/client"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
+  groups:
+    npm:
+      update-types: [ "minor", "patch" ]
+  ignore:
+    - dependency-name: "*"
+      update-types: [ "version-update:semver-major" ]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: weekly
-  open-pull-requests-limit: 10
+  groups:
+    actions:
+      patterns: [ "*" ]
