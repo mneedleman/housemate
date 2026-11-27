@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client/react"
-import { CheckIcon, ChevronDownIcon, ClockIcon, LoopIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
+import { CheckIcon, ChevronDownIcon, ClockIcon, HomeIcon, LoopIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
 import { toast } from 'react-toastify'
 import { EditTimelineItemDocument, type TimelineItemFragment } from 'src/__generated__/types'
 import { cn } from 'src/utils/cn'
@@ -13,7 +13,10 @@ import DeleteItemForm from './forms/DeleteItemForm'
 import EditItemForm from './forms/EditItemForm'
 import { dueLabel, frequencyLabel, statusOf, type TimelineStatus } from './timelineUtils'
 
-export type ItemProps = TimelineItemFragment
+export type ItemProps = TimelineItemFragment & {
+  /** Label the card with its household (when the timeline shows several) */
+  showHousehold?: boolean
+}
 
 const statusTone: Record<TimelineStatus, Tone> = {
   overdue: "danger",
@@ -29,7 +32,7 @@ const statusBar: Record<TimelineStatus, string> = {
   unscheduled: "bg-line",
 }
 
-const Item = (item: ItemProps) => {
+const Item = ({ showHousehold, ...item }: ItemProps) => {
   const { id, title, body, lastCompletedAt } = item
   const [showDetails, toggleShowDetails] = useToggle()
   const [trashOpen, toggleTrash, setTrashOpen] = useToggle()
@@ -74,6 +77,7 @@ const Item = (item: ItemProps) => {
           <span className="mt-2 flex flex-wrap gap-1.5">
             <Badge tone={statusTone[status]} icon={<ClockIcon className="h-3 w-3" />}>{dueLabel(item)}</Badge>
             {frequency && <Badge icon={<LoopIcon className="h-3 w-3" />}>{frequency}</Badge>}
+            {showHousehold && <Badge icon={<HomeIcon className="h-3 w-3" />}>{item.household.name}</Badge>}
           </span>
         </button>
         <DropMenu options={options} label={`Options for ${title}`} />
