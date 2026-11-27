@@ -24,6 +24,9 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       RAILS_ENV: development
+      # Outgoing email goes to Mailpit: open http://localhost:8025 to read it
+      SMTP_ADDRESS: mailpit
+      APP_URL: http://localhost:8080
     ports:
       - "3000:3000"
     volumes:
@@ -32,6 +35,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     stdin_open: true # allows `docker attach` for debugger sessions
     tty: true
 
@@ -50,6 +55,12 @@ services:
       - /app/node_modules # keep container's Linux node_modules, not your macOS ones
     depends_on:
       - api
+
+  # Catches all email sent in development (nothing is delivered for real)
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025" # web inbox
 
 volumes:
   pg_data:

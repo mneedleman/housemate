@@ -1,0 +1,7 @@
+mutation inviteToHousehold($householdId: ID!, $email: String!) {
+  inviteToHousehold(householdId: $householdId, email: $email) {
+    id
+    email
+    expiresAt
+  }
+}

@@ -2,9 +2,19 @@ query households {
   households {
     id
     name
+    isOwner
+    owner {
+      email
+    }
     users {
       name
       email
+    }
+    # Owner only (null for other members)
+    pendingInvitations {
+      id
+      email
+      expiresAt
     }
   }
 }

@@ -10,14 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_201125) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "households", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "owner_id"
+    t.index ["owner_id"], name: "index_households_on_owner_id"
   end
 
   create_table "households_users", id: false, force: :cascade do |t|
@@ -25,6 +27,24 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
     t.bigint "user_id"
     t.index ["household_id"], name: "index_households_users_on_household_id"
     t.index ["user_id"], name: "index_households_users_on_user_id"
+  end
+
+  create_table "invitations", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "inviter_id", null: false
+    t.string "email", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "accepted_at"
+    t.bigint "accepted_by_id"
+    t.datetime "canceled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["accepted_by_id"], name: "index_invitations_on_accepted_by_id"
+    t.index ["household_id", "email"], name: "index_invitations_open_per_household_email", unique: true, where: "((accepted_at IS NULL) AND (canceled_at IS NULL))"
+    t.index ["household_id"], name: "index_invitations_on_household_id"
+    t.index ["inviter_id"], name: "index_invitations_on_inviter_id"
+    t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
   end
 
   create_table "leftovers", force: :cascade do |t|
@@ -76,6 +96,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
     t.index ["household_id"], name: "index_users_on_household_id"
   end
 
+  add_foreign_key "households", "users", column: "owner_id"
+  add_foreign_key "invitations", "households"
+  add_foreign_key "invitations", "users", column: "accepted_by_id"
+  add_foreign_key "invitations", "users", column: "inviter_id"
   add_foreign_key "leftovers", "households"
   add_foreign_key "leftovers", "users"
   add_foreign_key "timeline_item_instances", "timeline_items"

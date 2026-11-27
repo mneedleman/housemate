@@ -1,9 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "GraphQL deleteHousehold", type: :request do
-  let(:doomed) { create(:household, name: "Doomed") }
+  let(:owner_user) { create(:user) }
+  let(:doomed) { create(:household, name: "Doomed", owner: owner_user) }
   let(:other) { create(:household, name: "Other") }
-  let!(:user) { create(:user, household: doomed, households: [ doomed, other ]) }
+  let!(:user) { owner_user.tap { |u| u.update!(household: doomed, households: [ doomed, other ]) } }
   let!(:housemate) { create(:user, household: doomed, households: [ doomed ]) }
   let!(:item) { create(:timeline_item, user: user, household: doomed) }
   let!(:instance) { TimelineItemInstance.create!(timeline_item: item) }
@@ -40,6 +41,13 @@ RSpec.describe "GraphQL deleteHousehold", type: :request do
 
     expect(user.reload.household).to eq(other)
     expect(housemate.reload.household).to be_nil
+  end
+
+  it "refuses a member who isn't the owner" do
+    body = delete_household(doomed.id, as: housemate)
+
+    expect(body.dig("errors", 0, "message")).to eq("Only the household's owner can delete it")
+    expect(Household.exists?(doomed.id)).to be(true)
   end
 
   it "refuses a household the user isn't in" do

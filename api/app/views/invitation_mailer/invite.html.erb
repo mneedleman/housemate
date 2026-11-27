@@ -1,0 +1,18 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b19;">
+  <p style="margin: 0 0 24px; font-size: 15px; font-weight: 600; color: #0f766e;">Housemate</p>
+  <h1 style="margin: 0 0 12px; font-size: 22px; font-weight: 600;">You're invited to <%= @household_name %></h1>
+  <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #6b6862;">
+    <%= @inviter_name %> invited you to share chores and leftovers in <strong style="color: #1c1b19;"><%= @household_name %></strong> on Housemate.
+  </p>
+  <p style="margin: 0 0 24px;">
+    <a href="<%= @url %>" style="display: inline-block; background: #0f766e; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 12px 20px; border-radius: 12px;">Accept invitation</a>
+  </p>
+  <p style="margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #6b6862;">
+    Or paste this link into your browser:<br>
+    <a href="<%= @url %>" style="color: #0f766e; word-break: break-all;"><%= @url %></a>
+  </p>
+  <p style="margin: 24px 0 0; font-size: 12px; line-height: 1.5; color: #6b6862;">
+    The invitation is for <%= @invitation.email %> and expires on <%= @invitation.expires_at.utc.strftime("%B %-d, %Y") %>.
+    If you weren't expecting it, you can ignore this email.
+  </p>
+</div>

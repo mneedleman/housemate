@@ -1,0 +1,6 @@
+mutation acceptInvitation($token: String!) {
+  acceptInvitation(token: $token) {
+    id
+    name
+  }
+}
