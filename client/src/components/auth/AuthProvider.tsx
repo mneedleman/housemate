@@ -14,7 +14,10 @@ type AuthType = {
   token: string | null
   login: Login
   signup: Signup
-  logout: () => void
+  /** Sign out, then go to `to` (default /login) */
+  logout: (to?: To) => void
+  /** Store a token from a mutation handled elsewhere (e.g. signing up from an invitation) */
+  startSession: (token: string) => void
   signedIn: boolean
   currentUser?: CurrentUser | null
 }
@@ -77,18 +80,18 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       toast.error(CombinedGraphQLErrors.is(error) ? error.message : "Couldn't create that account")
     })
 
-  const logout = () => {
+  const logout = (to: To = "/login") => {
     localStorage.removeItem(TOKEN_KEY)
     setToken(null)
     // Drop the previous user's cached data so it can't flash for the next one
     apollo.clearStore()
-    navigate("/login")
+    navigate(to)
   }
 
   const signedIn = useMemo(() => !!token, [token])
 
   return (
-    <AuthContext.Provider value={{ token, login, signup, logout, signedIn, currentUser }}>
+    <AuthContext.Provider value={{ token, login, signup, logout, startSession: storeToken, signedIn, currentUser }}>
       {children}
     </AuthContext.Provider>
   )

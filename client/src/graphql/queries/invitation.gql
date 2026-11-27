@@ -1,0 +1,10 @@
+# No login needed: the token from the email link is the credential
+query invitation($token: String!) {
+  invitation(token: $token) {
+    email
+    status
+    householdName
+    inviterName
+    accountExists
+  }
+}
