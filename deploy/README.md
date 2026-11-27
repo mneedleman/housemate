@@ -1,4 +1,4 @@
-# Deploying Housemate
+# Deploying Housemate Guide
 
 Everything runs on one Lightsail instance with Docker Compose:
 
