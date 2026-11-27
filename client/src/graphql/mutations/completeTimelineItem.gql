@@ -1,0 +1,7 @@
+# import TimelineItem from "../fragments/timelineItem.gql"
+
+mutation completeTimelineItem($id: ID!) {
+  completeTimelineItem(id: $id) {
+    ...TimelineItem
+  }
+}

@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react"
 import { CheckIcon, ChevronDownIcon, ClockIcon, HomeIcon, LoopIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons'
 import { toast } from 'react-toastify'
-import { EditTimelineItemDocument, type TimelineItemFragment } from 'src/__generated__/types'
+import { CompleteTimelineItemDocument, type TimelineItemFragment } from 'src/__generated__/types'
 import { cn } from 'src/utils/cn'
 import { relativeDay, shortDate, toDate } from 'src/utils/dateUtils'
 import useToggle from '../../hooks/useToggle'
@@ -43,9 +43,10 @@ const Item = ({ showHousehold, ...item }: ItemProps) => {
   const lastDone = toDate(lastCompletedAt)
   const hasDetails = !!body || !!lastDone
 
-  const [complete] = useMutation(EditTimelineItemDocument)
+  // Any household member can do this; the server records the time
+  const [complete] = useMutation(CompleteTimelineItemDocument)
   const markDone = () =>
-    complete({ variables: { id, title, lastCompletedAt: new Date().toISOString() } })
+    complete({ variables: { id } })
       .then(() => toast.success(`Marked “${title}” done`))
       .catch(() => toast.error("Couldn't update that task"))
 

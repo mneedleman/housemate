@@ -1,14 +1,16 @@
 import { useMutation } from "@apollo/client/react"
-import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons"
+import { CheckIcon, ChevronDownIcon, TrashIcon } from "@radix-ui/react-icons"
 import { toast } from "react-toastify"
 import { SetHouseholdDocument } from "src/__generated__/types"
 import { cn } from "src/utils/cn"
 import useToggle from "../../hooks/useToggle"
 import { useAuth } from "../auth/AuthProvider"
+import Modal from "../modal/Modal"
 import Avatar, { AvatarStack } from "../ui/Avatar"
 import Badge from "../ui/Badge"
 import Button from "../ui/Button"
 import Card from "../ui/Card"
+import DeleteHouseholdForm from "./DeleteHouseholdForm"
 
 type Member = { name?: string | null, email: string }
 
@@ -20,6 +22,7 @@ type Props = {
 
 const HouseholdItem = ({ id, name, users }: Props) => {
   const [showMembers, toggleShowMembers] = useToggle()
+  const [deleteOpen, toggleDelete, setDeleteOpen] = useToggle()
   const { currentUser } = useAuth()
   const isCurrent = id === currentUser?.householdId
   const [setHousehold, { loading }] = useMutation(SetHouseholdDocument, {
@@ -72,15 +75,28 @@ const HouseholdItem = ({ id, name, users }: Props) => {
               </li>
             ))}
           </ul>
-          {!isCurrent && (
-            <div className="border-t border-line p-4">
+          <div className="flex flex-col gap-2 border-t border-line p-4 sm:flex-row">
+            {!isCurrent && (
               <Button variant="secondary" size="sm" block loading={loading} onClick={switchHere}>
                 Make this my current household
               </Button>
-            </div>
-          )}
+            )}
+            <Button
+              variant="danger-ghost"
+              size="sm"
+              block
+              icon={<TrashIcon />}
+              onClick={toggleDelete}
+            >
+              Delete household
+            </Button>
+          </div>
         </div>
       )}
+
+      <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete household?">
+        <DeleteHouseholdForm id={id} name={name} memberCount={members.length} />
+      </Modal>
     </Card>
   )
 }
