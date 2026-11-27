@@ -18,9 +18,12 @@ type Props = {
   name: string
   users: Member[] | null | undefined
   id: string
+  /** Whether the current user owns it (only owners can delete) */
+  isOwner: boolean
+  ownerEmail?: string | null
 }
 
-const HouseholdItem = ({ id, name, users }: Props) => {
+const HouseholdItem = ({ id, name, users, isOwner, ownerEmail }: Props) => {
   const [showMembers, toggleShowMembers] = useToggle()
   const [deleteOpen, toggleDelete, setDeleteOpen] = useToggle()
   const { currentUser } = useAuth()
@@ -68,19 +71,22 @@ const HouseholdItem = ({ id, name, users }: Props) => {
             {members.map(({ name: memberName, email }) => (
               <li key={email} className="flex items-center gap-3 px-4 py-3">
                 <Avatar name={memberName} email={email} size="sm" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{memberName || email}</p>
                   {memberName && <p className="truncate text-xs text-muted">{email}</p>}
                 </div>
+                {email === ownerEmail && <Badge>Owner</Badge>}
               </li>
             ))}
           </ul>
+          {(!isCurrent || isOwner) && (
           <div className="flex flex-col gap-2 border-t border-line p-4 sm:flex-row">
             {!isCurrent && (
               <Button variant="secondary" size="sm" block loading={loading} onClick={switchHere}>
                 Make this my current household
               </Button>
             )}
+            {isOwner && (
             <Button
               variant="danger-ghost"
               size="sm"
@@ -90,7 +96,9 @@ const HouseholdItem = ({ id, name, users }: Props) => {
             >
               Delete household
             </Button>
+            )}
           </div>
+          )}
         </div>
       )}
 

@@ -34,6 +34,7 @@ class User < ApplicationRecord
   belongs_to :household, optional: true
   has_many :timeline_items
   has_many :leftovers
+  has_many :owned_households, class_name: "Household", foreign_key: :owner_id, inverse_of: :owner
 
   alias current_household household
 end

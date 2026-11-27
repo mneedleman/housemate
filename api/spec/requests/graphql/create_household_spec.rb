@@ -21,6 +21,7 @@ RSpec.describe "GraphQL createHousehold", type: :request do
     household = Household.find(body.dig("data", "createHousehold", "id"))
     expect(household.name).to eq("Beach House")
     expect(household.users).to eq([ user ])
+    expect(household.owner).to eq(user)
     expect(body.dig("data", "createHousehold", "users")).to eq([ { "email" => user.email } ])
   end
 
