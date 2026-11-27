@@ -10,14 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_27_200914) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "households", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "owner_id"
+    t.index ["owner_id"], name: "index_households_on_owner_id"
   end
 
   create_table "households_users", id: false, force: :cascade do |t|
@@ -76,6 +78,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_193942) do
     t.index ["household_id"], name: "index_users_on_household_id"
   end
 
+  add_foreign_key "households", "users", column: "owner_id"
   add_foreign_key "leftovers", "households"
   add_foreign_key "leftovers", "users"
   add_foreign_key "timeline_item_instances", "timeline_items"

@@ -28,8 +28,8 @@ const HouseholdsPage = () => {
 
   return (
     <div className="grid items-start gap-3 lg:grid-cols-2">
-      {households.map(({ name, id, users }) => (
-        <HouseholdItem key={id} {...{ name, id, users }} />
+      {households.map(({ name, id, users, isOwner, owner }) => (
+        <HouseholdItem key={id} {...{ name, id, users, isOwner }} ownerEmail={owner?.email} />
       ))}
     </div>
   )

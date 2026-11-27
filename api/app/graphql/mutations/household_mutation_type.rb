@@ -52,7 +52,7 @@ module Mutations
       return unless current_user
 
       Household.transaction do
-        household = Household.create!(name: name.strip, users: [ current_user ])
+        household = Household.create!(name: name.strip, owner: current_user, users: [ current_user ])
         current_user.update!(household: household) if make_current
         household
       end
@@ -64,6 +64,8 @@ module Mutations
       return unless current_user
 
       household = current_user.households.find(id)
+      raise GraphQL::ExecutionError, "Only the household's owner can delete it" unless household.owned_by?(current_user)
+
       Household.transaction do
         affected = household.current_users.to_a
         household.destroy!
@@ -83,9 +85,14 @@ module Mutations
     def remove_user_from_household(id:, user_id:)
       return unless current_user
       return unless (household = current_user.households.find(id))
-      return unless (user = User.find(user_id))
+      raise GraphQL::ExecutionError, "Only the household's owner can remove members" unless household.owned_by?(current_user)
+
+      user = household.users.find(user_id)
+      raise GraphQL::ExecutionError, "The owner can't be removed" if household.owned_by?(user)
 
       household.users.delete(user)
+      user.update!(household: user.households.order(:id).first) if user.household_id == household.id
+      true
     end
   end
 end

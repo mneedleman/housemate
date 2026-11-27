@@ -2,6 +2,10 @@ query households {
   households {
     id
     name
+    isOwner
+    owner {
+      email
+    }
     users {
       name
       email
