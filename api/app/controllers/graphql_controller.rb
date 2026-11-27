@@ -1,7 +1,8 @@
 # frozen_string_literal: true
-require 'jwt'
 
 class GraphqlController < ApplicationController
+  # Overall request cap per IP; login/signup have a tighter limit in AuthThrottle
+  rate_limit to: 300, within: 1.minute
   # If accessing from outside this domain, nullify the session
   # This allows for outside API access while preventing CSRF attacks,
   # but you'll have to authenticate your user separately
@@ -13,6 +14,7 @@ class GraphqlController < ApplicationController
     operation_name = params[:operationName]
     context = {
       current_user: current_user,
+      ip: request.remote_ip
     }
     result = ApiSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
@@ -25,11 +27,9 @@ class GraphqlController < ApplicationController
 
   def current_user
     return unless (token = request.headers[:authorization])
-    _, token = token.split()
-    res = JWT.decode(token, nil, false)
-    User.find(res.dig(0, "user"))
-  rescue
-    nil
+    _, token = token.split
+    return unless (user_id = AuthToken.decode(token))
+    User.find_by(id: user_id)
   end
 
   # Handle variables in form data, JSON body, or a blank value
@@ -56,6 +56,6 @@ class GraphqlController < ApplicationController
     logger.error e.message
     logger.error e.backtrace.join("\n")
 
-    render json: { errors: [{ message: e.message, backtrace: e.backtrace }], data: {} }, status: 500
+    render json: { errors: [ { message: e.message, backtrace: e.backtrace } ], data: {} }, status: 500
   end
 end

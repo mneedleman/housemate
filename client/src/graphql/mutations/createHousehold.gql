@@ -1,0 +1,10 @@
+mutation createHousehold($name: String!, $makeCurrent: Boolean) {
+  createHousehold(name: $name, makeCurrent: $makeCurrent) {
+    id
+    name
+    users {
+      name
+      email
+    }
+  }
+}

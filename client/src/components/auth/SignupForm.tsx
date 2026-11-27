@@ -1,57 +1,67 @@
+import { EnvelopeClosedIcon, LockClosedIcon, PersonIcon } from "@radix-ui/react-icons"
+import { FormProvider, type SubmitHandler, useForm } from "react-hook-form"
 import { type To } from "react-router"
-import { useAuth } from "./AuthProvider"
-import { type SubmitHandler, useForm } from "react-hook-form"
+import type { SignupMutationVariables } from "src/__generated__/types"
 import FormInput from "../forms/FormInput"
-import type { MutationSignupArgs } from "src/__generated__/types"
+import Button from "../ui/Button"
+import { useAuth } from "./AuthProvider"
 
 type Props = {
   to: To
   toggleSignup: () => void
 }
 const SignupForm = ({ to, toggleSignup }: Props) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<MutationSignupArgs>()
+  const formMethods = useForm<SignupMutationVariables>()
+  const { handleSubmit, formState: { isSubmitting } } = formMethods
   const { signup } = useAuth();
 
-  const onSubmit: SubmitHandler<MutationSignupArgs> = (data) => {
-    signup(data, to)
-  }
+  const onSubmit: SubmitHandler<SignupMutationVariables> = (data) => signup(data, to)
 
   return (
-    <div className="flex flex-column w-100 items-center">
-      <div className="f1 flex flex-row justify-center bg-moon-gray w-100 h3 mb3">
-        <span className="f3 self-center">Welcome to Housemate</span>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-column ba br3 ph2 pv2 b--white">
+    <FormProvider {...formMethods}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
         <FormInput
-          register={register}
-          labelClass="mr-auto"
-          label="Email"
-          fieldName="email"
-          required
-          errorField={errors.email}
-          inputClass="mb3"
-          errorMessage="Email is required"
-        />
-        <FormInput
-          register={register}
-          label="Password"
-          fieldName="password"
-          required
-          errorField={errors.password}
-          inputClass="mb3"
-          errorMessage="Password is required"
-        />
-        <FormInput
-          register={register}
           label="Name"
           fieldName="name"
-          inputClass="mb3"
+          autoComplete="name"
+          placeholder="Alex Rivera"
+          icon={<PersonIcon />}
+          errorMessage="Tell us what to call you"
+          required
         />
-        <input type="submit" value="Sign Up" className="w3 ml-auto" />
+        <FormInput
+          label="Email"
+          fieldName="email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder="you@example.com"
+          icon={<EnvelopeClosedIcon />}
+          errorMessage="Email is required"
+          required
+        />
+        <FormInput
+          label="Password"
+          fieldName="password"
+          type="password"
+          autoComplete="new-password"
+          placeholder="At least 8 characters"
+          icon={<LockClosedIcon />}
+          errorMessage="Password is required"
+          validate={(value) => String(value ?? "").length >= 8 || "Use at least 8 characters"}
+          required
+        />
+        <Button type="submit" size="lg" block loading={isSubmitting} className="mt-2">
+          Create account
+        </Button>
       </form>
-
-      <button className="mt2" onClick={toggleSignup}>Log in</button>
-    </div>
+      <p className="mt-6 text-center text-sm text-muted">
+        Already have an account?{" "}
+        <button type="button" onClick={toggleSignup} className="font-medium text-accent hover:underline">
+          Log in
+        </button>
+      </p>
+    </FormProvider>
   )
 }
 

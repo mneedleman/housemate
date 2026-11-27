@@ -15,7 +15,7 @@ RSpec.describe "GraphQL login", type: :request do
 
   context "when the user already has a current household" do
     let(:household) { create(:household) }
-    let(:user) { create(:user, password: password, household: household, households: [household]) }
+    let(:user) { create(:user, password: password, household: household, households: [ household ]) }
 
     it "returns a token" do
       body = login(user.email)
@@ -26,7 +26,7 @@ RSpec.describe "GraphQL login", type: :request do
 
   context "when the user belongs to a household but has none selected" do
     let(:household) { create(:household) }
-    let(:user) { create(:user, password: password, household: nil, households: [household]) }
+    let(:user) { create(:user, password: password, household: nil, households: [ household ]) }
 
     it "returns a token" do
       body = login(user.email)

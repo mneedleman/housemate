@@ -2,18 +2,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
-import { setContext } from "@apollo/client/link/context"
-import createUploadLink from 'apollo-upload-client/createUploadLink.mjs';
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { SetContextLink } from "@apollo/client/link/context"
+import { ApolloProvider } from '@apollo/client/react';
 import { BrowserRouter } from 'react-router';
 
-const apiBase = import.meta.env.VITE_API_URL;
+// Empty in production: the API is served from the same origin (Caddy proxies /graphql)
+const apiBase = import.meta.env.VITE_API_URL ?? "";
 
-const httpLink = createUploadLink({
+const httpLink = new HttpLink({
   uri: `${apiBase}/graphql`
 });
 
-const authLink = setContext((_, { headers }) => {
+const authLink = new SetContextLink(({ headers }) => {
   const token = localStorage.getItem('housemate-bearer');
   return {
     headers: {
@@ -24,9 +25,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const client = new ApolloClient({
-  // link: authLink.concat(debounceLink.concat(httpLink)),
   link: authLink.concat(httpLink),
-
   cache: new InMemoryCache()
 });
 

@@ -26,9 +26,8 @@
 require 'rails_helper'
 
 RSpec.describe "TimelineItem", type: :model do
-  let!(:item) { FactoryBot.create(:timeline_item)}
+  let!(:item) { FactoryBot.create(:timeline_item) }
   it "should work" do
-    debugger
     expect(true).to be(true)
   end
 end

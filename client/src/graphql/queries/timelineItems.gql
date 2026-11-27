@@ -1,7 +1,8 @@
 # import TimelineItem from "../fragments/timelineItem.gql"
 
-query timelineItems {
-  timelineItems {
+# householdIds omitted = the current household
+query timelineItems($householdIds: [ID!]) {
+  timelineItems(householdIds: $householdIds) {
     ...TimelineItem
   }
 }

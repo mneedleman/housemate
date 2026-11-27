@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :timeline_item do
-    title { "Foo "}
+    title { "Foo " }
     household
     user
   end

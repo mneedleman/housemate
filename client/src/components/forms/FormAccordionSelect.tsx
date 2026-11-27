@@ -83,7 +83,7 @@ const FormAccordionSelect = <T extends FieldValues,>({
 
             return (
               <li
-                className={`${selected && 'bg-secondary'} hover:bg-secondary cursor-pointer`}
+                className={`${selected && 'bg-accent-soft'} hover:bg-accent-soft cursor-pointer`}
                 key={option.value}
                 onClick={onClick}
               >

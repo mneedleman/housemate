@@ -41,13 +41,13 @@ const FormDropdown = <T extends FieldValues,>({
         {!open && <CaretUpIcon className="h-6 w-6" />}
       </Row>
       {open &&
-        <ul className="absolute bg-tertiary z-10 shadow mt-16">
+        <ul className="absolute bg-surface border border-line rounded-xl z-10 shadow-pop mt-16">
           {options.map((option) => {
             const selected = value?.includes(option.value)
             return (
               <li
                 key={option.value}
-                className={`${selected && 'bg-secondary'} hover:bg-secondary cursor-pointer`}
+                className={`${selected && 'bg-accent-soft'} hover:bg-accent-soft cursor-pointer`}
                 // TODO: Fix typing here instead of clobbering
                 onClick={() => setValue(fieldName, [...value || [], option.value] as PathValue<T, Path<T>>)}
               >

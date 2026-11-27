@@ -27,12 +27,17 @@ module Mutations
       field :delete_timeline_item, GraphQL::Types::Boolean, null: false do
         argument :id, GraphQL::Types::ID
       end
+
+      field :complete_timeline_item, Types::TimelineItemType, null: true,
+        description: "Mark an item done now. Any member of the item's household can do this." do
+        argument :id, GraphQL::Types::ID
+      end
     end
 
     def create_timeline_item(**item_args)
       return unless current_user
 
-      item = TimelineItem.create!(**item_args, user: current_user, household: current_user.household)
+      TimelineItem.create!(**item_args, user: current_user, household: current_user.household)
     end
 
     def edit_timeline_item(id:, **item_args)
@@ -46,6 +51,15 @@ module Mutations
     def delete_timeline_item(id:)
       return unless current_user
       current_user.timeline_items.find(id)&.destroy!
+    end
+
+    # Unlike editing/deleting (creator only), completing is open to the whole household
+    def complete_timeline_item(id:)
+      return unless current_user
+
+      item = TimelineItem.where(household: current_user.households).find(id)
+      item.update!(last_completed_at: Time.current)
+      item
     end
   end
 end

@@ -1,0 +1,125 @@
+name: CI / Deploy
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  api:
+    name: API tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    env:
+      RAILS_ENV: test
+      DB_HOST: localhost
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: api
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Security scan (Brakeman)
+        run: bundle exec brakeman --no-pager
+
+      - name: Known-vulnerable gems (bundler-audit)
+        run: bundle exec bundler-audit check --update
+
+      - name: Lint (RuboCop)
+        run: bin/rubocop -f github
+
+      - name: Run specs
+        run: |
+          bin/rails db:prepare
+          bundle exec rspec
+
+  client:
+    name: Client build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - run: npm ci
+
+      - name: Known-vulnerable packages (npm audit)
+        run: npm audit --audit-level=moderate
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Typecheck and build
+        run: npm run build
+
+  deploy:
+    name: Deploy to Lightsail
+    # Only runs when both test jobs pass, and only for pushes to master (not PRs)
+    needs: [ api, client ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    # A newer push waits for the running deploy instead of racing it
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    env:
+      DEPLOY_TARGET: ${{ vars.DEPLOY_USER || 'ubuntu' }}@${{ secrets.DEPLOY_HOST }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Copy code to server
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            --exclude .git --exclude node_modules --exclude '.env*' \
+            --exclude 'id_ed25519*' --exclude '*.pem' --exclude .DS_Store \
+            --exclude 'api/log/*' --exclude 'api/tmp/*' --exclude 'client/dist' \
+            ./ "$DEPLOY_TARGET:/opt/housemate/app/"
+
+      - name: Build and restart containers
+        run: |
+          ssh -i ~/.ssh/deploy_key "$DEPLOY_TARGET" '
+            set -e
+            cd /opt/housemate/app
+            docker compose -f docker-compose.prod.yml --env-file ../.env up -d --build --remove-orphans --wait --wait-timeout 300
+            docker image prune -f
+          '
+
+      - name: Check the site is up
+        run: curl -fsS --retry 10 --retry-delay 6 --retry-all-errors "https://${{ vars.APP_DOMAIN }}/up"
