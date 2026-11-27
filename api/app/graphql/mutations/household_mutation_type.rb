@@ -13,6 +13,8 @@ module Mutations
 
       field :create_household, Types::HouseholdType do
         argument :name, String, required: true
+        argument :make_current, GraphQL::Types::Boolean, required: false, default_value: false,
+          description: "Also switch the current user to the new household"
       end
 
       field :delete_household, GraphQL::Types::Boolean do
@@ -46,11 +48,14 @@ module Mutations
       household
     end
 
-    def create_household(name:)
+    def create_household(name:, make_current:)
       return unless current_user
-      household = Household.create(name: name)
-      current_user.households << household
-      household
+
+      Household.transaction do
+        household = Household.create!(name: name.strip, users: [ current_user ])
+        current_user.update!(household: household) if make_current
+        household
+      end
     end
 
     def delete_household(id:)

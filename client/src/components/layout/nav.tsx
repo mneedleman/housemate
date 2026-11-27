@@ -1,5 +1,6 @@
 import { CookieIcon, DashboardIcon, HomeIcon, LoopIcon } from "@radix-ui/react-icons"
 import type { ComponentType, ReactNode } from "react"
+import CreateHouseholdForm from "../households/CreateHouseholdForm"
 import CreateLeftoverForm from "../leftovers/CreateLeftoverForm"
 import CreateItemForm from "../timeline/forms/CreateItemForm"
 
@@ -52,6 +53,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Households",
     description: "The homes you share and who's in them",
     icon: <HomeIcon />,
+    create: {
+      label: "New household",
+      title: "New household",
+      description: "You'll be its first member.",
+      Form: CreateHouseholdForm,
+    },
   },
 ]
 
