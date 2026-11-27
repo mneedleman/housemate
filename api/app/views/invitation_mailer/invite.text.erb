@@ -1,0 +1,9 @@
+You're invited to <%= @household_name %>
+
+<%= @inviter_name %> invited you to share chores and leftovers in <%= @household_name %> on Housemate.
+
+Accept the invitation:
+<%= @url %>
+
+The invitation is for <%= @invitation.email %> and expires on <%= @invitation.expires_at.utc.strftime("%B %-d, %Y") %>.
+If you weren't expecting it, you can ignore this email.

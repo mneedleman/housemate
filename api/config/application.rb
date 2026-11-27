@@ -44,5 +44,10 @@ module Api
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # Where links in emails point (the client app; same origin as the API in production)
+    config.x.app_url = ENV.fetch("APP_URL", "http://localhost:8080")
+    # Sender for outgoing email. In production this must be an SES-verified address/domain.
+    config.x.mail_from = ENV.fetch("MAIL_FROM", "Housemate <housemate@localhost>")
   end
 end
